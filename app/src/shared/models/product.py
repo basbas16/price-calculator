@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from app.shared.models.coupon import CouponModel
+from app.src.shared.models.coupon import CouponModel
 
 
 class ProductModel(BaseModel):
