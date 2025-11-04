@@ -1,6 +1,6 @@
 import unittest
 
-from app.modules.calculator import Calculator
+from app.src.modules.calculator import Calculator
 
 
 class TestCalculator(unittest.TestCase):
