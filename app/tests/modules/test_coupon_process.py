@@ -1,4 +1,3 @@
-
 import unittest
 
 from app.src.module.coupon_process import CouponProcess
@@ -6,7 +5,6 @@ from app.src.shared.enums.coupon_name_enum import CouponName
 from app.src.shared.enums.promotion_name_enum import PromotionCategory
 from app.src.shared.models.coupon import CouponModel
 from app.src.shared.models.product import ProductModel
-
 
 class TestCouponProcess(unittest.TestCase):
     
