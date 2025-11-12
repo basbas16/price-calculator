@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, HTTPException
 
 from app.src.module.coupon_calculator import CouponCalculator
 from app.src.module.coupon_process import CouponProcess
@@ -7,6 +6,7 @@ from app.src.shared.enums.promotion_name_enum import PromotionCategory
 from app.src.shared.models.coupon import CouponModel
 from app.src.shared.models.product import ItemAndPromotionList, ProductModel
 from app.src.shared.models.response import DiscountResponse
+from app.src.shared.utils.ResponseUtils import ResponseUtils
 
 router = APIRouter()
 
@@ -14,29 +14,33 @@ router = APIRouter()
     path="/calculate-price/",
     tags=["price calculator"]
 )
-def calculate_price(items: ItemAndPromotionList):
+async def calculate_price(items: ItemAndPromotionList):
     try:
-        if not items:
-            raise HTTPException(
-                status_code=400,
-                detail="No items provided."
+        if not items.cart:
+            return ResponseUtils.get_error_response(
+                status_code=422,
+                message="Products Is Empty"
             )
 
         is_valid = CouponCalculator.coupon_validation(items.promotions)
         if not is_valid:
-            raise HTTPException(
+            return ResponseUtils.get_error_response(
                 status_code=400,
-                detail="Invalid coupon category. Valid categories: Coupon, On_Top, Seasonal"
+                message="Invalid coupon category. Valid categories: Coupon, On_Top, Seasonal"
             )
+
         print(items)
         # Calculate prices
         original_price = items.total_price()
         print("Price before calculate {}".format(original_price))
 
-        total_discount = calculate_final_price(
-            original_price,
-            items
-        )
+        total_discount = 0
+
+        if items.promotions:
+            total_discount = calculate_final_price(
+                original_price,
+                items
+            )
 
         final_price = round(original_price - total_discount, 2)
         print("Final price {}".format(final_price))
@@ -60,7 +64,7 @@ def calculate_final_price(total_amount: float, items: ItemAndPromotionList) -> f
     sorted_coupons = CouponProcess.sort_coupons_by_priority(items.promotions)
     print(sorted_coupons)
     for coupon in sorted_coupons:
-        current_price = apply_coupon_discount(coupon, current_price, items.products)
+        current_price = apply_coupon_discount(coupon, current_price, items.cart)
 
     return round(current_price, 2)
 

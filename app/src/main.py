@@ -2,9 +2,9 @@ from fastapi import FastAPI, Request
 
 import uvicorn
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 
 from app.src.price_calculator import price_calculator
+from app.src.shared.utils.ResponseUtils import ResponseUtils
 
 fast_api_app = FastAPI(title="Price Calculator API", version="1.0.0")
 
@@ -15,14 +15,15 @@ fast_api_app.include_router(price_calculator.router)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     first_error = exc.errors()[0]
 
-    return JSONResponse(
+    return ResponseUtils.get_error_response(
         status_code=422,
-        content={
-            "error": first_error["msg"],
-            "field": ".".join(str(x) for x in first_error["loc"])
+        message={
+            "content": {
+                "error": first_error["msg"],
+                "field": ".".join(str(x) for x in first_error["loc"])
+            }
         }
     )
-
 
 # Run with: uvicorn src.app.main:app --reload
 if __name__ == "__main__":

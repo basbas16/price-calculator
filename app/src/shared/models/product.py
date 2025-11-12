@@ -13,10 +13,10 @@ class ProductModel(BaseModel):
     
     
 class ItemAndPromotionList(BaseModel):
-    products: list[ProductModel]
+    cart: list[ProductModel]
     promotions: list[CouponModel]
 
     model_config = ConfigDict(extra="forbid")
     
     def total_price(self) -> float:
-        return sum(p.price for p in self.products)
+        return sum(p.price for p in self.cart)
